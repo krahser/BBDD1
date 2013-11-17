@@ -1,43 +1,68 @@
 2.
 **Consulta normalizada**
 ```
-select dniPaciente, nombreApellidoPaciente from paciente order by dniPaciente asc
+select dniPaciente, nombreApellidoPaciente 
+from paciente 
+order by dniPaciente asc
 ```
 **Consulta desnormalizada**
 
 ``` 
-select distinct(dniPaciente), nombreApellidoPaciente from internacion order by asc
+select distinct(dniPaciente), nombreApellidoPaciente 
+from internacion 
+order by asc
 ```
 
 3.
 **consulta normalizada**
 ```
- select dniPaciente, nombreApellidoPaciente from paciente p where not exists (select * from internacion i where obraSecundaria = obraSocialInternacion and p.dniPaciente=i.dniPaciente);
+ select dniPaciente, nombreApellidoPaciente 
+from paciente p 
+where not exists (select * 
+      	  	  from internacion i 
+		  where obraSecundaria = obraSocialInternacion and p.dniPaciente=i.dniPaciente);
 ```
 **consulta desnormalizada**
 ```
-select distinct(dniPaciente), nombreApellidoPaciente from internacion p where  not exists (select * from internacion i where p.dniPaciente = i.dniPaciente and i.obraSocialInternacion = p.obraSecundaria) and exists (select * from internacion i where p.dniPaciente = i.dniPaciente and i.obraSocialInternacion = p.obraPrimaria);
+select distinct(dniPaciente), nombreApellidoPaciente 
+from internacion p 
+where  not exists (select * 
+       	   	   from internacion i 
+		   where p.dniPaciente = i.dniPaciente and i.obraSocialInternacion = p.obraSecundaria) and exists (select * from internacion i where p.dniPaciente = i.dniPaciente and i.obraSocialInternacion = p.obraPrimaria);
 ```
+
 4.
 
 Teniendo en cuenta que la catedra menciono en el foro[1] que hay que aplicar (Cod 1). se verifico que el nombre la ciudad coincida en la base de datos desnormalizada(Cod 2) esto nos indico que tambien teniamos que actualizar la base desnormalizada(Cod 3)
 
 (Cod 1)
 ```
-update hospital set ciudadhospital ='General Pacheco' where codHospital=111;
+update hospital 
+set ciudadhospital ='General Pacheco' 
+where codHospital=111;
 ```
 
 (Cod 2)
 ```
-select distinct(dniPaciente) from internacion where ciudadPaciente='General Pacheco';
-select distinct(dniPaciente) from internacion where ciudadPaciente='General  Pacheco';
-select distinct(codHospital) from internacion where ciudadHospital= 'General Pacheco';
-select distinct(codHospital) from internacion where ciudadHospital= 'General  Pacheco';
+select distinct(dniPaciente) 
+from internacion 
+where ciudadPaciente='General Pacheco';
+select distinct(dniPaciente) 
+from internacion 
+where ciudadPaciente='General  Pacheco';
+select distinct(codHospital) 
+from internacion 
+where ciudadHospital= 'General Pacheco';
+select distinct(codHospital) 
+from internacion 
+where ciudadHospital= 'General  Pacheco';
 ```
 
 (Cod 3)
 ```
-update internacion set ciudadhospital ='General Pacheco' where ciudadhospital='General  Pacheco';
+update internacion 
+set ciudadhospital ='General Pacheco' 
+where ciudadhospital='General  Pacheco';
 ```
 
 
@@ -45,7 +70,9 @@ Con esas consideraciones el ejercicio nos quedo resuelto
 
 **Consulta normalizada**
 ```
-create view dni_hospitales as select dniPaciente, codHospital from paciente join hospital on (ciudadHospital=ciudadPaciente);
+create view dni_hospitales as 
+       select dniPaciente, codHospital 
+       from paciente join hospital on (ciudadHospital=ciudadPaciente);
 ```
 
 **consulta desnormalizada**
@@ -56,6 +83,36 @@ Falta
 ```
 
 5.
+select p.dniPaciente, count(i.codHospital) hospitales_paciente,(select count(*) from hospital h where h.ciudadHospital = ciudadPaciente) as cantidad
+from paciente p
+inner join internacion i on p.dniPaciente = i.dniPaciente
+inner join hospital h on p.ciudadPaciente = h.ciudadHospital
+group by p.dniPaciente
+having hospitales_paciente = cantidad
+
+
+6.
+**Normalizada**
+select p.dniPaciente
+from paciente p
+inner join internacion i on p.dniPaciente = i.dniPaciente
+where p.ciudadPaciente = i.ciudadInternacionPaciente and p.domicilioPaciente = i.direccionInternacionPaciente
+group by p.dniPaciente
+ 
+**Desnormalizada**
+select dniPaciente
+from internacion
+where ciudadPaciente = ciudadInternacionPaciente and domicilioPaciente = direccionInternacionPaciente
+group by dniPaciente
+
+7.
+select codHospital, i.dniPaciente, i.fechaInicioInternacion, count(insumoInternacion) as cantidad_insumos
+from internacion i
+inner join insumointernacion ii on i.dniPaciente = ii.dniPaciente
+where i.fechaInicioInternacion = ii.fechaInicioInternacion
+having cantidad_insumos > 3
+
+
 
 9.
 DELIMITER $$
