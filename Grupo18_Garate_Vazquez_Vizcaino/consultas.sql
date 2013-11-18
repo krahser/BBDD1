@@ -96,7 +96,7 @@ SELECT DISTINCT dniPaciente FROM paciente p
       SELECT * FROM internacion i
        WHERE i.dniPaciente = p.dniPaciente);
 
-select p.dniPaciente, count(i.codHospital), hospitales_paciente,(select count(*) from hospital h where h.ciudadHospital = ciudadPaciente) as cantidad
+select p.dniPaciente, count(i.codHospital) as hospitales_paciente,(select count(*) from hospital h where h.ciudadHospital = ciudadPaciente) as cantidad
 from paciente p
 inner join internacion i on p.dniPaciente = i.dniPaciente
 inner join hospital h on p.ciudadPaciente = h.ciudadHospital
