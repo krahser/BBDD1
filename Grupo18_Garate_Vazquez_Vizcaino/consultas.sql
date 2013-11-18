@@ -146,7 +146,12 @@ from (select dniPaciente, codHospital, fechaInicioInternacion, insumoInternacion
 group by dniPaciente, codHospital, fechaInicioInternacion
 having cantidad_insumos > 3
 
+8.
+**Creacion de tabla**
+create table `internacionesporpaciente` (`idIP` int, `dniPaciente` int, `cantidadInternaciones` int, `fechaUltimaInternacion` datetime, `usuario` char(16), PRIMARY KEY(idIP));
 
+**Verificamos que lo que hicimos este bien**
+describe internacionesporpaciente;
 
 9.
 DELIMITER $$
