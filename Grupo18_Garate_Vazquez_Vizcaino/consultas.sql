@@ -90,6 +90,7 @@ from pacienteCiudad join hospitalCiudad on (ciudadHospital = ciudadPaciente);
 
 5.
 **consulta normalizada**
+```
 SELECT DISTINCT dniPaciente FROM paciente p
   WHERE NOT EXISTS (
     SELECT * FROM hospital h WHERE NOT EXISTS (
@@ -102,29 +103,40 @@ inner join internacion i on p.dniPaciente = i.dniPaciente
 inner join hospital h on p.ciudadPaciente = h.ciudadHospital
 group by p.dniPaciente
 having hospitales_paciente = cantidad
-
+```
 
 6.
 **Normalizada**
-select p.dniPaciente
+```
+select distinct(p.dniPaciente)
 from paciente p
 inner join internacion i on p.dniPaciente = i.dniPaciente
-where p.ciudadPaciente = i.ciudadInternacionPaciente and p.domicilioPaciente = i.direccionInternacionPaciente
-group by p.dniPaciente
- 
+where p.ciudadPaciente = i.ciudadInternacionPaciente and p.domicilioPaciente = i.direccionInternacionPaciente;
+```
+*tiempo:* 0.6 
+
 **Desnormalizada**
-select dniPaciente
+```
+select distinct(dniPaciente)
 from internacion
-where ciudadPaciente = ciudadInternacionPaciente and domicilioPaciente = direccionInternacionPaciente
-group by dniPaciente
+where ciudadPaciente = ciudadInternacionPaciente and domicilioPaciente = direccionInternacionPaciente;
+```
+*tiempo*:5.24
 
 7.
+**Normalizada**
 select codHospital, i.dniPaciente, i.fechaInicioInternacion, count(insumoInternacion) as cantidad_insumos
 from internacion i
 inner join insumointernacion ii on i.dniPaciente = ii.dniPaciente
 where i.fechaInicioInternacion = ii.fechaInicioInternacion
-having cantidad_insumos > 3
+group by codHospital, dniPaciente, fechaInicioInternacion
+having cantidad_insumos > 3;
 
+**Desnormalizada**
+select codHospital, i.dniPaciente, i.fechaInicioInternacion, count(distinct(insumoInternacion)) as cantidad_insumos
+from internacion i 
+group by codHospital, dniPaciente, fechaInicioInternacion
+having cantidad_insumos > 3;
 
 
 9.
