@@ -1,0 +1,50 @@
+#Punto 15
+  #Plan 1
+    La consulta cuenta la cantidad de pacientes que atendio el 'Dr. Sosa', en los hospitales con menos de 35 habitaciones en 'Vicente Lopez'
+
+     #Sin indice
+     *La consulta sin indices trae toda las filas de la tabla paciente ~200000, y las escanea a todas para encontrar las que coinciden.
+     *Utiliza la clave primaria para buscar ya que no posee indice.
+
+     #Con indice
+     *La consulta con indice trae solo ~15000 filas de la tabla atencioninternacion, aprovechando el indice idx_dr donde se lo filtra con un valor constante,
+      en este caso 'Dr. Sosa'.
+      *En la tabla hospitales, se filtra por valores constantes aprovechando los indices idx_canthab e idx_ciu_hosp.
+     
+     #Conclusión
+     *Se nota una mejor performance en la consulta con indices, ya que se maneja una cantidad total de filas mucho menor a las que se menaja en la consulta
+     sin indices, también se aprovechan mejor los valores constantes en las clausulas del WHERE que son utilizados para buscar en los indices.
+  
+  #Plan 2
+    La consulta muestra todas las internaciones que atendio el 'Dr. Dominguez' en en los hospitales con más de 42 habitaciones en 'Vicente Lopez' entre las fechas 
+    '2006-01-01' y '2006-12-31'.
+
+     #Sin indice
+     *Se ejecuta sin orden, analizando toda la tabla de pacientes, luego la tabla de internaciones es filtrada por el dniPaciente, seguido de la tabla de hospitales
+      filtrada por codHospital y por ultimo la tabla de atencioninternacion en la cual se comparan las columnas dniPaciente, fechaInicioInternacion, 
+
+     #Con indice
+     *Se ejecuta ordenada de forma que se filtran primero los hospitales de 'Vicente Lopez' y luego las atenciones del 'Dr. Dominguez', luego los pacientes 
+     que tienen internaciones atendidas por el doctor entre las fechas establecidas.
+     
+     #Conclusión
+     *Al igual que el analisis del Plan 1, en el Plan 2 encontramos una gran mejora al ejecutar la consulta aprovechando los indices, el total de filas procesadas
+     para encontrar el resultado es muy significativo (~200000 sin indices, ~30000 con indices), en esta consulta también son aprovechadas las referencias constantes
+     con las que se comparan los valores de los indices.
+     
+  #Plan 3
+    La consulta muestra lo mismo que la consulta del plan 2, solamente que utiliza una tabla ya filtrada por ciudadhospital='Vicente Lopez' y cantidadhabitaciones >42.
+
+     #Sin indice
+     *Al tener una sub consulta en el FROM, hace que se recorra la totalidad de la tabla hospital, no utilizando asi ningun tipo de clave, la consulta escanea 
+     ~700000 filas para poder encontrar todos los resultados.
+     
+     #Con indice
+     *El orden de ejecucion cambia, aprovechando el indice idx_dr solo se examinan ~15000 filas de la tabla atencioninternacion, ta tabla hospital sigue siendo procesada
+     en ultimo lugar, pero en este caso utilizando los indices idx_canthab e idx_ciu_hosp examinando así solo 2 filas para encontrar los resultados.
+     
+     #Conclusión
+     *Teniendo el mismo objetivo las consultas del Plan 2 y 3, se puede ver una gran baja de performance utilizando un sub consulta en el FROM y no utilizando indices
+     el total de filas analizadas por el Plan 3 sin indices es mas del triple de filas que se tuvieron que analizar en el Plan 2 sin indices.
+     Con respecto a la consulta con idices el grado de performance no se ve afectado por que tanto en el Plan 2 como en el Plan 3 se manejan la misma cantidad de filas
+     para encontrar los resultados.
