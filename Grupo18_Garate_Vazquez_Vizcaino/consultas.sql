@@ -89,6 +89,8 @@ from pacienteCiudad join hospitalCiudad on (ciudadHospital = ciudadPaciente);
 ```
 
 5.
+# esto hay que revisarlo
+
 **consulta normalizada**
 ```
 SELECT DISTINCT dniPaciente FROM paciente p
@@ -154,11 +156,10 @@ create table `internacionesporpaciente` (`idIP` int, `dniPaciente` int, `cantida
 describe internacionesporpaciente;
 
 9.
+```
 DELIMITER $$
-
 CREATE PROCEDURE `update_internacionesporpaciente`()
 BEGIN
-
 DECLARE terminado int DEFAULT 0;
 DECLARE usuario char(16);
 DECLARE fecha datetime;
@@ -168,12 +169,9 @@ DECLARE internaciones CURSOR FOR
   select dniPaciente, count(*)
   from internacion
   group by dniPaciente;
-
 DECLARE CONTINUE HANDLER FOR NOT FOUND SET terminado = 1;
-
 DECLARE EXIT HANDLER FOR SQLEXCEPTION ROLLBACK;
 DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
-
 SET usuario = CURRENT_USER();
 SET fecha = NOW();
 
@@ -183,7 +181,7 @@ OPEN internaciones;
 
 read_loop: LOOP
   FETCH internaciones INTO dni, nroInternaciones;
-  INSERT INTO internacionesporpaciente(dniPaciente, cantidaInternaciones, fechaultimaactualizacion, usuario)
+  INSERT INTO internacionesporpaciente(dniPaciente, cantidadInternaciones, fechaUltimaActualizacion, usuario)
          VALUES(dni, nroInternaciones, fecha, usuario);
   IF terminado = 1 THEN
     LEAVE read_loop;
@@ -195,8 +193,13 @@ CLOSE internaciones;
 COMMIT;
 
 END
+$$
+DELIMITER ;
+```
 
 10.
+
+```
 DELIMITER $$
 
 CREATE TRIGGER after_internacion_insert AFTER INSERT ON internacion
@@ -207,8 +210,12 @@ FOR EACH ROW BEGIN
       usuario = CURRENT_USER()
   where dniPaciente = NEW.dniPaciente;
 END
+$$
+DELIMITER ;
 
-11-12
+```
+11
+```
 DELIMITER $$
 
 CREATE PROCEDURE `agregar_internacion`(
@@ -232,12 +239,31 @@ BEGIN
 
 	COMMIT;
 END
-
+$$
+DELIMITER ;
+```
+12.
+```
 call agregar_internacion(1002342, 100, '2009-02-23 12:20:31', 3, '4243-4255', 'Dr. Maidana', 'algodón');
 
 select * from internacion where dniPaciente = 1002342;
 select * from insumointernacion where dniPaciente = 1002342;
 select * from atencioninternacion where dniPaciente = 1002342;
 select * from internacionesporpaciente where dniPaciente = 1002342;
+```
 
 
+# Esta bien que devulva esto?
+| dniPaciente | fechaInicioInternacion | doctorAtencion |
++-------------+------------------------+----------------+
+|     1002342 | 2007-02-23 12:20:31    | Dr. Campos     |
+|     1002342 | 2009-11-03 10:07:42    | Dr. Maidana    |
++-------------+------------------------+----------------+
+
+13.
+
+14.
+
+15.
+
+16.
