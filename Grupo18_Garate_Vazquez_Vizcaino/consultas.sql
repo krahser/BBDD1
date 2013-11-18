@@ -106,13 +106,21 @@ where ciudadPaciente = ciudadInternacionPaciente and domicilioPaciente = direcci
 group by dniPaciente
 
 7.
+**Normalizada**
 select codHospital, i.dniPaciente, i.fechaInicioInternacion, count(insumoInternacion) as cantidad_insumos
 from internacion i
 inner join insumointernacion ii on i.dniPaciente = ii.dniPaciente
 where i.fechaInicioInternacion = ii.fechaInicioInternacion
+group by codHospital, dniPaciente, fechaInicioInternacion
 having cantidad_insumos > 3
 
-
+**Desnormalizada**
+select dniPaciente, codHospital, fechaInicioInternacion, count(*) cantidad_insumos
+from (select dniPaciente, codHospital, fechaInicioInternacion, insumoInternacion
+      from internacion
+      group by dniPaciente, codHospital, fechaInicioInternacion, insumoInternacion) insumos
+group by dniPaciente, codHospital, fechaInicioInternacion
+having cantidad_insumos > 3
 
 9.
 DELIMITER $$
