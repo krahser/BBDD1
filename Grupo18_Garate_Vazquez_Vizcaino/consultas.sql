@@ -97,7 +97,7 @@ SELECT DISTINCT dniPaciente FROM paciente p
       SELECT * FROM internacion i
        WHERE i.dniPaciente = p.dniPaciente);
 
-select p.dniPaciente, count(i.codHospital), hospitales_paciente,(select count(*) from hospital h where h.ciudadHospital = ciudadPaciente) as cantidad
+select p.dniPaciente, count(i.codHospital) as hospitales_paciente,(select count(*) from hospital h where h.ciudadHospital = ciudadPaciente) as cantidad
 from paciente p
 inner join internacion i on p.dniPaciente = i.dniPaciente
 inner join hospital h on p.ciudadPaciente = h.ciudadHospital
@@ -137,6 +137,15 @@ select codHospital, i.dniPaciente, i.fechaInicioInternacion, count(distinct(insu
 from internacion i 
 group by codHospital, dniPaciente, fechaInicioInternacion
 having cantidad_insumos > 3;
+
+---------*Otra consulta*--------
+select dniPaciente, codHospital, fechaInicioInternacion, count(*) cantidad_insumos
+from (select dniPaciente, codHospital, fechaInicioInternacion, insumoInternacion
+      from internacion
+      group by dniPaciente, codHospital, fechaInicioInternacion, insumoInternacion) insumos
+group by dniPaciente, codHospital, fechaInicioInternacion
+having cantidad_insumos > 3
+
 
 
 9.
