@@ -89,7 +89,6 @@ from pacienteCiudad join hospitalCiudad on (ciudadHospital = ciudadPaciente);
 ```
 
 5.
-# esto hay que revisarlo
 
 **consulta normalizada**
 ```
