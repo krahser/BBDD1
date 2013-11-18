@@ -93,12 +93,6 @@ from pacienteCiudad join hospitalCiudad on (ciudadHospital = ciudadPaciente);
 
 **consulta normalizada**
 ```
-SELECT DISTINCT dniPaciente FROM paciente p
-  WHERE NOT EXISTS (
-    SELECT * FROM hospital h WHERE NOT EXISTS (
-      SELECT * FROM internacion i
-       WHERE i.dniPaciente = p.dniPaciente);
-
 select dniPaciente from paciente p
 where not exists (
   select * from hospital h 
@@ -108,14 +102,9 @@ where not exists (
     where i.dniPaciente = p.dniPaciente and i.codHospital = h.codHospital
   )
 );
-
-select p.dniPaciente, count(i.codHospital) as hospitales_paciente,(select count(*) from hospital h where h.ciudadHospital = ciudadPaciente) as cantidad
-from paciente p
-inner join internacion i on p.dniPaciente = i.dniPaciente
-inner join hospital h on p.ciudadPaciente = h.ciudadHospital
-group by p.dniPaciente
-having hospitales_paciente = cantidad
 ```
+*tuplas:*15033 (1.69 sec)
+
 
 **usando la vista**
 ```
@@ -123,14 +112,16 @@ select dniPaciente
 from paciente p
 where not exists (
   select * 
-  from hospitales_por_paciente hp
-  where p.dniPaciente = hp.dniPaciente and not exists (
+  from dniPacientecodHospital ph
+  where p.dniPaciente = ph.dniPaciente and not exists (
     select * 
     from internacion i 
-    where i.dniPaciente = p.dniPaciente and i.codHospital = hp.codHospital
+    where i.dniPaciente = p.dniPaciente and i.codHospital = ph.codHospital
   )
 );
 ```
+*tuplas:* 15033 (7,62)
+
 
 6.
 **consulta normalizada**
@@ -152,26 +143,24 @@ where ciudadPaciente = ciudadInternacionPaciente and domicilioPaciente = direcci
 
 7.
 **consulta normalizada**
+```
 select codHospital, i.dniPaciente, i.fechaInicioInternacion, count(insumoInternacion) as cantidad_insumos
 from internacion i
 inner join insumointernacion ii on i.dniPaciente = ii.dniPaciente
 where i.fechaInicioInternacion = ii.fechaInicioInternacion
 group by codHospital, dniPaciente, fechaInicioInternacion
 having cantidad_insumos > 3;
+```
+*tuples:* 9922 (3.32 sec)
 
 **consulta desnormalizada**
+```
 select codHospital, i.dniPaciente, i.fechaInicioInternacion, count(distinct(insumoInternacion)) as cantidad_insumos
 from internacion i 
 group by codHospital, dniPaciente, fechaInicioInternacion
 having cantidad_insumos > 3;
-
----------*Otra consulta*--------
-select dniPaciente, codHospital, fechaInicioInternacion, count(*) cantidad_insumos
-from (select dniPaciente, codHospital, fechaInicioInternacion, insumoInternacion
-      from internacion
-      group by dniPaciente, codHospital, fechaInicioInternacion, insumoInternacion) insumos
-group by dniPaciente, codHospital, fechaInicioInternacion
-having cantidad_insumos > 3
+```
+*tuples:* 9922  (6.22 sec)
 
 8.
 **Creacion de tabla**
