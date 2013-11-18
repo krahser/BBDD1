@@ -16,7 +16,7 @@ order by asc
 3.
 **consulta normalizada**
 ```
- select dniPaciente, nombreApellidoPaciente 
+select dniPaciente, nombreApellidoPaciente 
 from paciente p 
 where not exists (select * 
       	  	  from internacion i 
@@ -52,7 +52,7 @@ from internacion
 where ciudadPaciente='General  Pacheco';
 select distinct(codHospital) 
 from internacion 
-ggwhere ciudadHospital= 'General Pacheco';
+where ciudadHospital= 'General Pacheco';
 select distinct(codHospital) 
 from internacion 
 where ciudadHospital= 'General  Pacheco';
@@ -106,7 +106,7 @@ having hospitales_paciente = cantidad
 ```
 
 6.
-**Normalizada**
+**consulta normalizada**
 ```
 select distinct(p.dniPaciente)
 from paciente p
@@ -115,7 +115,7 @@ where p.ciudadPaciente = i.ciudadInternacionPaciente and p.domicilioPaciente = i
 ```
 *tiempo:* 0.6 
 
-**Desnormalizada**
+**consulta desnormalizada**
 ```
 select distinct(dniPaciente)
 from internacion
@@ -124,7 +124,7 @@ where ciudadPaciente = ciudadInternacionPaciente and domicilioPaciente = direcci
 *tiempo*:5.24
 
 7.
-**Normalizada**
+**consulta normalizada**
 select codHospital, i.dniPaciente, i.fechaInicioInternacion, count(insumoInternacion) as cantidad_insumos
 from internacion i
 inner join insumointernacion ii on i.dniPaciente = ii.dniPaciente
@@ -132,7 +132,7 @@ where i.fechaInicioInternacion = ii.fechaInicioInternacion
 group by codHospital, dniPaciente, fechaInicioInternacion
 having cantidad_insumos > 3;
 
-**Desnormalizada**
+**consulta desnormalizada**
 select codHospital, i.dniPaciente, i.fechaInicioInternacion, count(distinct(insumoInternacion)) as cantidad_insumos
 from internacion i 
 group by codHospital, dniPaciente, fechaInicioInternacion
