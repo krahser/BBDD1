@@ -52,7 +52,7 @@ from internacion
 where ciudadPaciente='General  Pacheco';
 select distinct(codHospital) 
 from internacion 
-where ciudadHospital= 'General Pacheco';
+ggwhere ciudadHospital= 'General Pacheco';
 select distinct(codHospital) 
 from internacion 
 where ciudadHospital= 'General  Pacheco';
@@ -70,20 +70,33 @@ Con esas consideraciones el ejercicio nos quedo resuelto
 
 **Consulta normalizada**
 ```
-create view dni_hospitales as 
+create view dniPacientecodHospital as 
        select dniPaciente, codHospital 
        from paciente join hospital on (ciudadHospital=ciudadPaciente);
 ```
 
 **consulta desnormalizada**
 
+El problema que se nos presento es que los dni y los codigos de hospital, siento campos disjuntos, estan repetidos en las tuplas. en primera instancia tratamos de planificar la solucion con subconsultas en el form, pero eso no esta permitido para realizar en las vistas.
 
 ```
-Falta
+create view pacienteCiudad as select distinct(dniPaciente),ciudadPaciente 
+from internacion;
+create view hospitalCiudad as select distinct(codHospital),ciudadHospital 
+from internacion;
+create view dniPacientecodHospital as select dniPaciente, codHospital 
+from pacienteCiudad join hospitalCiudad on (ciudadHospital = ciudadPaciente);
 ```
 
 5.
-select p.dniPaciente, count(i.codHospital) hospitales_paciente,(select count(*) from hospital h where h.ciudadHospital = ciudadPaciente) as cantidad
+**consulta normalizada**
+SELECT DISTINCT dniPaciente FROM paciente p
+  WHERE NOT EXISTS (
+    SELECT * FROM hospital h WHERE NOT EXISTS (
+      SELECT * FROM internacion i
+       WHERE i.dniPaciente = p.dniPaciente);
+
+select p.dniPaciente, count(i.codHospital), hospitales_paciente,(select count(*) from hospital h where h.ciudadHospital = ciudadPaciente) as cantidad
 from paciente p
 inner join internacion i on p.dniPaciente = i.dniPaciente
 inner join hospital h on p.ciudadPaciente = h.ciudadHospital
