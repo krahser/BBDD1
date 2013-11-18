@@ -99,12 +99,37 @@ SELECT DISTINCT dniPaciente FROM paciente p
       SELECT * FROM internacion i
        WHERE i.dniPaciente = p.dniPaciente);
 
+select dniPaciente from paciente p
+where not exists (
+  select * from hospital h 
+  where p.ciudadPaciente = h.ciudadHospital and not exists (
+    select * 
+    from internacion i
+    where i.dniPaciente = p.dniPaciente and i.codHospital = h.codHospital
+  )
+);
+
 select p.dniPaciente, count(i.codHospital) as hospitales_paciente,(select count(*) from hospital h where h.ciudadHospital = ciudadPaciente) as cantidad
 from paciente p
 inner join internacion i on p.dniPaciente = i.dniPaciente
 inner join hospital h on p.ciudadPaciente = h.ciudadHospital
 group by p.dniPaciente
 having hospitales_paciente = cantidad
+```
+
+**usando la vista**
+```
+select dniPaciente 
+from paciente p
+where not exists (
+  select * 
+  from hospitales_por_paciente hp
+  where p.dniPaciente = hp.dniPaciente and not exists (
+    select * 
+    from internacion i 
+    where i.dniPaciente = p.dniPaciente and i.codHospital = hp.codHospital
+  )
+);
 ```
 
 6.
