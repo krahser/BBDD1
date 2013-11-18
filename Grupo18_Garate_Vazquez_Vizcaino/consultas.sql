@@ -163,10 +163,14 @@ having cantidad_insumos > 3;
 
 8.
 **Creacion de tabla**
+```
 create table `internacionesporpaciente` (`idIP` int, `dniPaciente` int, `cantidadInternaciones` int, `fechaUltimaInternacion` datetime, `usuario` char(16), PRIMARY KEY(idIP));
+```
 
 **Verificamos que lo que hicimos este bien**
+```
 describe internacionesporpaciente;
+```
 
 9.
 ```
@@ -267,6 +271,8 @@ select * from internacionesporpaciente where dniPaciente = 1002342;
 
 
 # Esta bien que devulva esto?
+
++-------------------------------------------------------+
 | dniPaciente | fechaInicioInternacion | doctorAtencion |
 +-------------+------------------------+----------------+
 |     1002342 | 2007-02-23 12:20:31    | Dr. Campos     |
