@@ -1,97 +1,88 @@
-2.
-**Consulta normalizada**
-```
+#2.
+#Consulta normalizada
 select dniPaciente, nombreApellidoPaciente 
 from paciente 
 order by dniPaciente asc
-```
-**Consulta desnormalizada**
 
-``` 
+#Consulta desnormalizada
 select distinct(dniPaciente), nombreApellidoPaciente 
 from internacion 
 order by asc
-```
 
-3.
-**consulta normalizada**
-```
+#3.
+#consulta normalizada
 select dniPaciente, nombreApellidoPaciente 
 from paciente p 
-where not exists (select * 
-      	  	  from internacion i 
-		  where obraSecundaria = obraSocialInternacion and p.dniPaciente=i.dniPaciente);
-```
-**consulta desnormalizada**
-```
+where not exists ( 
+  select * 
+  from internacion i 
+	where obraSecundaria = obraSocialInternacion and p.dniPaciente=i.dniPaciente
+);
+
+#consulta desnormalizada
 select distinct(dniPaciente), nombreApellidoPaciente 
 from internacion p 
-where  not exists (select * 
-       	   	   from internacion i 
-		   where p.dniPaciente = i.dniPaciente and i.obraSocialInternacion = p.obraSecundaria) and exists (select * from internacion i where p.dniPaciente = i.dniPaciente and i.obraSocialInternacion = p.obraPrimaria);
-```
+where  not exists (
+  select * 
+  from internacion i 
+	where p.dniPaciente = i.dniPaciente and i.obraSocialInternacion = p.obraSecundaria
+) and exists (
+  select * from 
+  internacion i 
+  where p.dniPaciente = i.dniPaciente and i.obraSocialInternacion = p.obraPrimaria
+);
 
-4.
+#4.
+#Teniendo en cuenta que la catedra menciono en el foro[1] que hay que aplicar (Cod 1). se verifico que el nombre la ciudad coincida en la base de datos desnormalizada(Cod 2) esto nos indico que tambien teniamos que actualizar la base desnormalizada(Cod 3)
 
-Teniendo en cuenta que la catedra menciono en el foro[1] que hay que aplicar (Cod 1). se verifico que el nombre la ciudad coincida en la base de datos desnormalizada(Cod 2) esto nos indico que tambien teniamos que actualizar la base desnormalizada(Cod 3)
-
-(Cod 1)
-```
+#(Cod 1)
 update hospital 
 set ciudadhospital ='General Pacheco' 
 where codHospital=111;
-```
 
-(Cod 2)
-```
+#(Cod 2)
 select distinct(dniPaciente) 
 from internacion 
 where ciudadPaciente='General Pacheco';
+
 select distinct(dniPaciente) 
 from internacion 
 where ciudadPaciente='General  Pacheco';
+
 select distinct(codHospital) 
 from internacion 
 where ciudadHospital= 'General Pacheco';
+
 select distinct(codHospital) 
 from internacion 
 where ciudadHospital= 'General  Pacheco';
-```
 
-(Cod 3)
-```
+#(Cod 3)
 update internacion 
 set ciudadhospital ='General Pacheco' 
 where ciudadhospital='General  Pacheco';
-```
 
 
-Con esas consideraciones el ejercicio nos quedo resuelto
+#Con esas consideraciones el ejercicio nos quedo resuelto
 
-**Consulta normalizada**
-```
+#Consulta normalizada
 create view dniPacientecodHospital as 
-       select dniPaciente, codHospital 
-       from paciente join hospital on (ciudadHospital=ciudadPaciente);
-```
+  select dniPaciente, codHospital 
+  from paciente join hospital on (ciudadHospital=ciudadPaciente);
 
-**consulta desnormalizada**
+#consulta desnormalizada
 
-El problema que se nos presento es que los dni y los codigos de hospital, siento campos disjuntos, estan repetidos en las tuplas. en primera instancia tratamos de planificar la solucion con subconsultas en el form, pero eso no esta permitido para realizar en las vistas.
+#El problema que se nos presento es que los dni y los codigos de hospital, siendo campos disjuntos, estan repetidos en las tuplas. en primera instancia tratamos de planificar la solucion con subconsultas en el from, pero eso no esta permitido para realizar en las vistas.
 
-```
 create view pacienteCiudad as select distinct(dniPaciente),ciudadPaciente 
 from internacion;
 create view hospitalCiudad as select distinct(codHospital),ciudadHospital 
 from internacion;
 create view dniPacientecodHospital as select dniPaciente, codHospital 
 from pacienteCiudad join hospitalCiudad on (ciudadHospital = ciudadPaciente);
-```
 
-5.
-
-**consulta normalizada**
-```
+#5.
+#consulta normalizada
 select dniPaciente from paciente p
 where not exists (
   select * from hospital h 
@@ -101,12 +92,10 @@ where not exists (
     where i.dniPaciente = p.dniPaciente and i.codHospital = h.codHospital
   )
 );
-```
-*tuplas:*15033 (1.69 sec)
 
+#tuplas: 15033 (1.69 seg)
 
-**usando la vista**
-```
+#usando la vista
 select dniPaciente 
 from paciente p
 where not exists (
@@ -118,62 +107,52 @@ where not exists (
     where i.dniPaciente = p.dniPaciente and i.codHospital = ph.codHospital
   )
 );
-```
-*tuplas:* 15033 (7,62)
 
+#tuplas: 15033 (7.62 seg)
 
-6.
-**consulta normalizada**
-```
+#6.
+#consulta normalizada
 select distinct(p.dniPaciente)
 from paciente p
 inner join internacion i on p.dniPaciente = i.dniPaciente
 where p.ciudadPaciente = i.ciudadInternacionPaciente and p.domicilioPaciente = i.direccionInternacionPaciente;
-```
-*tiempo:* 0.6 
 
-**consulta desnormalizada**
-```
+# (0.6 seg) 
+
+#consulta desnormalizada
 select distinct(dniPaciente)
 from internacion
 where ciudadPaciente = ciudadInternacionPaciente and domicilioPaciente = direccionInternacionPaciente;
-```
-*tiempo*:5.24
 
-7.
-**consulta normalizada**
-```
+# (5.24 seg)
+
+#7.
+#consulta normalizada
 select codHospital, i.dniPaciente, i.fechaInicioInternacion, count(insumoInternacion) as cantidad_insumos
 from internacion i
 inner join insumointernacion ii on i.dniPaciente = ii.dniPaciente
 where i.fechaInicioInternacion = ii.fechaInicioInternacion
 group by codHospital, dniPaciente, fechaInicioInternacion
 having cantidad_insumos > 3;
-```
-*tuples:* 9922 (3.32 sec)
 
-**consulta desnormalizada**
-```
+#tuplas: 9922 (3.32 seg)
+
+#consulta desnormalizada
 select codHospital, i.dniPaciente, i.fechaInicioInternacion, count(distinct(insumoInternacion)) as cantidad_insumos
 from internacion i 
 group by codHospital, dniPaciente, fechaInicioInternacion
 having cantidad_insumos > 3;
-```
-*tuples:* 9922  (6.22 sec)
 
-8.
-**Creacion de tabla**
-```
+#tuplas: 9922 (6.22 seg)
+
+#8.
+#Creacion de tabla
 create table `internacionesporpaciente` (`idIP` int, `dniPaciente` int, `cantidadInternaciones` int, `fechaUltimaInternacion` datetime, `usuario` char(16), PRIMARY KEY(idIP));
-```
 
-**Verificamos que lo que hicimos este bien**
-```
+#Verificamos que lo que hicimos este bien
 describe internacionesporpaciente;
-```
 
-9.
-```
+#9.
 DELIMITER $$
 CREATE PROCEDURE `update_internacionesporpaciente`()
 BEGIN
@@ -212,17 +191,14 @@ COMMIT;
 END
 $$
 DELIMITER ;
-```
 
-10.
-
-```
+#10.
 DELIMITER $$
 
 CREATE TRIGGER after_internacion_insert AFTER INSERT ON internacion
 FOR EACH ROW BEGIN
   update internacionesporpaciente
-  set cantidaInternaciones = cantidaInternaciones + 1,
+  set cantidadInternaciones = cantidadInternaciones + 1,
       fechaultimaactualizacion = NOW(),
       usuario = CURRENT_USER()
   where dniPaciente = NEW.dniPaciente;
@@ -230,9 +206,7 @@ END
 $$
 DELIMITER ;
 
-```
-11
-```
+#11
 DELIMITER $$
 
 CREATE PROCEDURE `agregar_internacion`(
@@ -258,31 +232,6 @@ BEGIN
 END
 $$
 DELIMITER ;
-```
-12.
-```
+
+#12.
 call agregar_internacion(1002342, 100, '2009-02-23 12:20:31', 3, '4243-4255', 'Dr. Maidana', 'algodón');
-
-select * from internacion where dniPaciente = 1002342;
-select * from insumointernacion where dniPaciente = 1002342;
-select * from atencioninternacion where dniPaciente = 1002342;
-select * from internacionesporpaciente where dniPaciente = 1002342;
-```
-
-
-# Esta bien que devulva esto?
-
-+-------------------------------------------------------+
-| dniPaciente | fechaInicioInternacion | doctorAtencion |
-+-------------+------------------------+----------------+
-|     1002342 | 2007-02-23 12:20:31    | Dr. Campos     |
-|     1002342 | 2009-11-03 10:07:42    | Dr. Maidana    |
-+-------------+------------------------+----------------+
-
-13.
-
-14.
-
-15.
-
-16.
