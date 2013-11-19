@@ -1,0 +1,73 @@
+#Punto 16
+  #PlanA
+    La consulta cuenta la cantidad de pacientes que atendio el 'Dr. Sosa', en los hospitales con menos de 35 habitaciones en 'Vicente Lopez'
+     #Sin indice
+     (811 Rows)"11.24 SEC"
+     *No se utiliza ningún tipo de clave para buscar los datos, se tiene que escanear todas las tuplas de la tabla internacion ~1350000, es el peor caso posible en performance.
+  +----+-------------+-------+------+---------------+------+---------+------+---------+----------+-------------+
+  | id | select_type | table | type | possible_keys | key  | key_len | ref  | rows    | filtered | Extra       |
+  +----+-------------+-------+------+---------------+------+---------+------+---------+----------+-------------+
+  |  1 | SIMPLE      | i     | ALL  | NULL          | NULL | NULL    | NULL | 1347498 |   100.00 | Using where |
+  +----+-------------+-------+------+---------------+------+---------+------+---------+----------+-------------+
+
+    #Con indice
+     (811 Rows)"0.27 SEC"
+     *A primera vista se evidencia el reducido tiempo de ejecución con respecto a la consulta sin indices, para escanear se realiza un merge de indices (idx_dr,idx_ciu_hosp), logrando así
+     tener que utilizar solo ~6000 tuplas de la tabla internacion.
+  +----+-------------+-------+-------------+---------------------------------+---------------------+---------+------+------+----------+---------------------------------------------------+
+  | id | select_type | table | type        | possible_keys                   | key                 | key_len | ref  | rows | filtered | Extra                                             |
+  +----+-------------+-------+-------------+---------------------------------+---------------------+---------+------+------+----------+---------------------------------------------------+
+  |  1 | SIMPLE      | i     | index_merge | idx_canthab,idx_dr,idx_ciu_hosp | idx_dr,idx_ciu_hosp | 152,138 | NULL | 6039 |    75.01 | Using intersect(idx_dr,idx_ciu_hosp); Using where |
+  +----+-------------+-------+-------------+---------------------------------+---------------------+---------+------+------+----------+---------------------------------------------------+
+ 
+  
+  #PlanB
+    La consulta muestra todas las internaciones que atendio el 'Dr. Dominguez' en en los hospitales con más de 42 habitaciones en 'Vicente Lopez' entre las fechas 
+    '2006-01-01' y '2006-12-31'.
+    #Sin indice
+     (72 Rows)"11.59 SEC"
+     *Al igual que en la consulta del PlanA sin indices, no se utiliza ninguna clave para realizar el join, y se tiene que escanear la totalidad de las tuplas en la tabla internacion.
+  +----+-------------+-------+------+---------------+------+---------+------+---------+----------+-------------+
+  | id | select_type | table | type | possible_keys | key  | key_len | ref  | rows    | filtered | Extra       |
+  +----+-------------+-------+------+---------------+------+---------+------+---------+----------+-------------+
+  |  1 | SIMPLE      | i     | ALL  | NULL          | NULL | NULL    | NULL | 1347498 |   100.00 | Using where |
+  +----+-------------+-------+------+---------------+------+---------+------+---------+----------+-------------+
+
+    #Con indice
+     (72 Rows)"0.28 SEC"
+     *Como era de esperar, el uso de indices permite reducir el tiempo que lleva la ejecución de la consulta, y tambien la cantidad de tuplas escaneadas (~6000), en este caso tambien se realiza
+     un merge de indices (idx_dr,idx_ciu_hosp). 
+  +----+-------------+-------+-------------+---------------------------------+---------------------+---------+------+------+----------+---------------------------------------------------+
+  | id | select_type | table | type        | possible_keys                   | key                 | key_len | ref  | rows | filtered | Extra                                             |
+  +----+-------------+-------+-------------+---------------------------------+---------------------+---------+------+------+----------+---------------------------------------------------+
+  |  1 | SIMPLE      | i     | index_merge | idx_canthab,idx_dr,idx_ciu_hosp | idx_dr,idx_ciu_hosp | 152,138 | NULL | 5932 |    75.00 | Using intersect(idx_dr,idx_ciu_hosp); Using where |
+  +----+-------------+-------+-------------+---------------------------------+---------------------+---------+------+------+----------+---------------------------------------------------+
+
+  #PlanC
+    La consulta muestra todas las internaciones que atendio el 'Dr. Dominguez' en en los hospitales de 'Vicente Lopez' entre las fechas '2006-01-01' y '2006-12-31'.
+    #Sin indice
+    (1445 Rows)"11.59 SEC"
+    *Al igual que en la consulta del PlanA y PlanB sin indices, no se utiliza ninguna clave para realizar el join, y se tiene que escanear la totalidad de las tuplas en la tabla internacion.
+  +----+-------------+-------+------+---------------+------+---------+------+---------+----------+-------------+
+  | id | select_type | table | type | possible_keys | key  | key_len | ref  | rows    | filtered | Extra       |
+  +----+-------------+-------+------+---------------+------+---------+------+---------+----------+-------------+
+  |  1 | SIMPLE      | i     | ALL  | NULL          | NULL | NULL    | NULL | 1347498 |   100.00 | Using where |
+  +----+-------------+-------+------+---------------+------+---------+------+---------+----------+-------------+
+
+
+    #Con indice
+    (1445 Rows)"0.63 SEC"
+    *En esta consulta solo se utilza el indice idx_dr, haciendo procesar solo ~26500 tuplas de la tabla internacion, el tiempo de ejecución es notoriamente menor en comparacion a el de la consulta
+    sin indices.
+  +----+-------------+-------+------+---------------+--------+---------+-------+-------+----------+-------------+
+  | id | select_type | table | type | possible_keys | key    | key_len | ref   | rows  | filtered | Extra       |
+  +----+-------------+-------+------+---------------+--------+---------+-------+-------+----------+-------------+
+  |  1 | SIMPLE      | i     | ref  | idx_dr        | idx_dr | 152     | const | 26438 |   100.00 | Using where |
+  +----+-------------+-------+------+---------------+--------+---------+-------+-------+----------+-------------+
+
+  #Conclusión
+  * En los tres planes los puntos más claros en los que se diferencian las consultas que no aprovechan los indices con las que si lo hacen, son el tiempo en el que son ejecutadas y la cantidad 
+  de tuplas que tienen que ser escaneadas para poder encontrar las coincidencias. En las consultas sin indices los tiempos de ejecución rondan los 12 segundos aproximadamente, contrastando así
+  con las consultas que utilizan indices en donde los tiempos son de entre 0.20 y 0.65 segundos, el otro gran problema de las consultas sin indices es que tienen que escanear la totalidad de
+  tuplas de la tabla internacion ~1350000, en cambio las que utilizan indices solo tienen que escanear entre ~6000 y ~26500 tuplas como maximo.
+  Quedando así demostrado que en una base de datos desnormalizada la utilizacion de indices produce un gran incremento de performance en la ejecucion de consultas.
