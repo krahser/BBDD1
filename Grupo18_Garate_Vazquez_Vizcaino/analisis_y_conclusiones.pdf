@@ -3,10 +3,12 @@
     La consulta cuenta la cantidad de pacientes que atendio el 'Dr. Sosa', en los hospitales con menos de 35 habitaciones en 'Vicente Lopez'
 
      #Sin indice
+     *"0.61 SEC"
      *La consulta sin indices trae toda las filas de la tabla paciente ~200000, y las escanea a todas para encontrar las que coinciden.
      *Utiliza la clave primaria para buscar ya que no posee indice.
 
      #Con indice
+     *"0.11 SEC"
      *La consulta con indice trae solo ~15000 filas de la tabla atencioninternacion, aprovechando el indice idx_dr donde se lo filtra con un valor constante,
       en este caso 'Dr. Sosa'.
       *En la tabla hospitales, se filtra por valores constantes aprovechando los indices idx_canthab e idx_ciu_hosp.
@@ -20,10 +22,12 @@
     '2006-01-01' y '2006-12-31'.
 
      #Sin indice
+     *0.50 SEC"
      *Se ejecuta sin orden, analizando toda la tabla de pacientes, luego la tabla de internaciones es filtrada por el dniPaciente, seguido de la tabla de hospitales
       filtrada por codHospital y por ultimo la tabla de atencioninternacion en la cual se comparan las columnas dniPaciente, fechaInicioInternacion, 
 
      #Con indice
+     *"0.03 SEC"
      *Se ejecuta ordenada de forma que se filtran primero los hospitales de 'Vicente Lopez' y luego las atenciones del 'Dr. Dominguez', luego los pacientes 
      que tienen internaciones atendidas por el doctor entre las fechas establecidas.
      
@@ -36,10 +40,12 @@
     La consulta muestra lo mismo que la consulta del plan 2, solamente que utiliza una tabla ya filtrada por ciudadhospital='Vicente Lopez' y cantidadhabitaciones >42.
 
      #Sin indice
+     *"0.22 SEC"
      *Al tener una sub consulta en el FROM, hace que se recorra la totalidad de la tabla hospital, no utilizando asi ningun tipo de clave, la consulta escanea 
      ~700000 filas para poder encontrar todos los resultados.
      
      #Con indice
+     *"0.03 SEC"
      *El orden de ejecucion cambia, aprovechando el indice idx_dr solo se examinan ~15000 filas de la tabla atencioninternacion, ta tabla hospital sigue siendo procesada
      en ultimo lugar, pero en este caso utilizando los indices idx_canthab e idx_ciu_hosp examinando así solo 2 filas para encontrar los resultados.
      
