@@ -1,21 +1,28 @@
 * Tasks
+
 ** DONE Conceptos claves
    CLOSED: [2013-12-10 Tue 16:44]
+
 ** DONE Segunda forma normal
    CLOSED: [2013-12-10 Tue 16:45]
+
 ** DONE Tercera forma normal
    CLOSED: [2013-12-10 Tue 16:53]
+
 ** DONE Boyce-cod (BCNF)
    CLOSED: [2013-12-10 Tue 17:12]
-** TODO Cuarta forma normal
+
+** DONE Cuarta forma normal
+   CLOSED: [2013-12-10 Tue 21:52]
 ** TODO Quinta forma normal
 
 
   
+** TODO Ejercicio Buque
 
 * Conceptos claves
 
-
+  
 ** Propiedades indeseables
 - Repetición de información
 - Mala representacion de la información
@@ -23,17 +30,15 @@
 
 ** Definiciones
 *** Dependencias funcionales
-, Las dependencias funcionales sirven para dar semántica a las tablas y para
-definir restricciones sobre las mismas. Una dependencia funcional significa que para un
-X dado siempre se recupera el mismo valor de Y
-
-
+, Las dependencias funcionales sirven para dar semántica a las tablas
+y para definir restricciones sobre las mismas. Una dependencia
+funcional significa que para un X dado siempre se recupera el mismo
+valor de Y
 
 
 *** Superclave
 , Una superclave es un conjunto K de atributos, los cuales conjuntamente, identifican únivocamente a una entidad
 en el conjunto de entidades. Si k es superclave cualquier conjunto que contenga K es superclave.
-
 
 
 *** Clave candidata
@@ -106,47 +111,27 @@ R1 intersección R2 es clave en el esquema R2
 
 
 
-
-
 * Primera forma normal
 
-, Se prohíben los atributos multivaluados (aquellos que tienen múltiples valores), los atributos compuestos
-(aquellos compuestos a su vez de otros atributos) y sus combinaciones.
+, Se prohíben los atributos multivaluados (aquellos que tienen múltiples valores), los atributos compuestos (aquellos compuestos a su vez de otros atributos) y sus combinaciones.
 
 * Segunda forma normal
 
-, Si esta en 1FN y todo atributo no primo depende funcionalmente de manera total de la clave primaria.
-
+, Si esta en 1FN y todo atributo no primo depende funcionalmente de
+manera total de la clave primaria.
 * Tercera forma normal
 
 , Si esta en 2FN y ningún atributo no primo de R depende transitivamente de la clave primaria.
 Siempre que una dependencia funcional X->A se cumple en R o
  1) A es un atributo primo de R
  2) X es superclave de R
-
+    
 * Boyce-code
 
-, siempre que una dependencia funcional X->A es válida en R, entonces X es superclave de R
-
-* Cuarta forma normal
-
-, si:
+, siempre que una dependencia funcional X->A es válida en R, entonces
+X es superclave de R
  1) No existen dependencias multivaluadas o
  2) sólo existe una dependencia multivaluada trivial
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

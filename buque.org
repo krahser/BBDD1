@@ -1,0 +1,278 @@
+   -*- Ejercicio de Buque -*- 
+
+* Tabla :table:  
+
+  BUQUE (nombreBuque, nYApDueño, dniDueño, tipoBuque, tonelaje,
+  tipoCasco, #Viaje, puertoOrigen, puertoDestino puertoIntermedio, 
+  nomPaísPuertoDestino, nombrePaisPuertoOrigen,
+  nombrePaisPuertoIntermedio, posicionActual, fechaPosicionActual,
+  nYApPasajero, dniPasajero, dirPasajero, puertoInicioPasajero,
+  puertoFinalPasajero) 
+
+* Descripción :dsc:
+Sobre el esquema propuesto valen las siguientes restricciones:
+
+- El #Viaje es un número consecutivo que identifica cada partida de
+  cada buque.
+- Un buque hace varios viajes.
+- El #Viaje se repite para distintos buques
+- Un buque puede tener varios dueños. 
+- El nombre del buque es único.
+- Un nombreBuque se asocia a un tipo de buque.
+- El tonelaje y el casco están determinados por el tipo de buque.
+- Un buque reporta su posición una vez por día independientemente del
+  viaje. 
+- Cada viaje de un buque tiene un puerto origen, un puerto destino y
+  varios puertos intermedios. 
+- Un buque en su viaje puede pasar por varios puertos intermedios sin
+  repetirlos. 
+- Un pasajero tiene una única dirección independientemente del viaje.
+- Un pasajero tiene un único puerto origen y puerto destino por cada
+  viaje de un buque.  
+
+* Pasos :result:
+
+** Clave Candidata:
+
+*** DNI_dueño, DNI_Pasajero, Nom_buque, #viaje, Fecha_Posicion_Actual, 
+    Puerto_intermedio
+
+** Dependencias Funcionales:
+1) DNI_Dueño -> NyAp_Dueño
+2) DNI_Pasajero -> NyAp_Pasajero, Dir_Pasajero
+3) tipo_buque -> tonelaje, tipo_casco
+4) Nom_buque -> tipo_buque
+5) Puerto_Origen -> Nombre_País_Puerto_Origen
+6) Puerto_Destino -> Nombre_País_Puerto_Destino
+7) Puerto_Intermedio -> Nombre_País_Puerto_Intermedio
+8) #viaje, Nom_buque -> Puerto_Origen, Puerto_Destino
+9) Nom_buque, Fecha_Posicion_Actual -> Posicion_Actual
+10) #viaje, Nom_buque, DNI_Pasajero -> Puerto_Inicio_Pasajero,
+    Puerto_Final_Pasajero
+
+
+** Particionamiento de tablas justificando: 
+
+El esquema BUQUE no esta en BCNF porque al menos uno de los
+antecedentes de las dependencias funcionales 1-10 no es superclave
+(Por ejemplo: la dependencia funcional 1). Entonces divido la tabla
+utilizando la dependencia funcional 1 quedando lo siguiente:
+
+*** B1 (DNI_Dueño, NyAp_dueño)
+
+    El esquema B1 esta en BCNF ya que el antecedente de la dependencia
+funcional 1 es superclave y vale la dependencia funcional 1 la cual se
+uso en el proceso de división. 
+
+*** B2 (Nom_buque,  DNI_Dueño, tipo_buque, tonelaje, tipo_casco, #viaje, 
+    Puerto_Origen, Puerto_Destino Puerto_Intermedio,
+    Nom_País_Puerto_Destino, Nombre_Pais_Puerto_Origen,
+    Nombre_Pais_Puerto_Intermedio, Posicion_Actual,
+    Fecha_Posicion_Actual, NyAp_Pasajero, DNI_Pasajero, Dir_Pasajero,
+    Puerto_Inicio_Pasajero, Puerto_Final_Pasajero)
+
+
+    El esquema B2 no esta en BCNF porque al menos uno de los antecedentes
+de las dependencias funcionales 2-10 no es superclave (Por ejemplo: la
+dependencia funcional 2). Entonces divido la tabla B2 utilizando la
+dependencia funcional 2 quedando lo siguiente:
+
+*** B3 (DNI_Pasajero, NyAp_Pasajero, Dir_Pasajero,)
+
+    El esquema B3 esta en BCNF ya que el antecedente de la dependencia
+funcional 2 es superclave y vale la dependencia funcional 2 la cual se
+uso en el proceso de división. 
+
+*** B4 (Nom_buque, DNI_Dueño, tipo_buque, tonelaje, tipo_casco, #viaje, 
+    Puerto_Origen, Puerto_Destino, Puerto_Intermedio,
+    Nom_País_Puerto_Destino, Nombre_Pais_Puerto_Origen,
+    Nombre_Pais_Puerto_Intermedio, Posicion_Actual,
+    Fecha_Posicion_Actual, DNI_Pasajero,Puerto_Inicio_Pasajero,
+    Puerto_Final_Pasajero) 
+
+    El esquema B4 no esta en BCNF porque al menos uno de los antecedentes
+de las dependencias funcionales 3-10 no es superclave (Por ejemplo: la
+dependencia funcional 3). Entonces divido la tabla B4 utilizando la
+dependencia funcional 3 quedando lo siguiente:
+
+*** B5 (tipo_buque, tonelaje, tipo_casco)
+
+    El esquema B5 esta en BCNF ya que el antecedente de la dependencia
+funcional 3 es superclave y vale la dependencia funcional 3 la cual se
+uso en el proceso de división. 
+
+*** B6 (Nom_buque, DNI_Dueño, tipo_buque, #viaje, Puerto_Origen, 
+    Puerto_Destino, Puerto_Intermedio, Nom_País_Puerto_Destino, 
+    Nombre_Pais_Puerto_Origen, Nombre_Pais_Puerto_Intermedio, 
+    Posicion_Actual, Fecha_Posicion_Actual, DNI_Pasajero, 
+    Puerto_Inicio_Pasajero, Puerto_Final_Pasajero)
+
+    El esquema B6 no esta en BCNF porque al menos uno de los antecedentes
+de las dependencias funcionales 4-10 no es superclave (Por ejemplo: la
+dependencia funcional 4). Entonces divido la tabla B6 utilizando la
+dependencia funcional 4 quedando lo siguiente:
+
+*** B7 (Nom_buque, tipo_buque)
+
+    El esquema B7 esta en BCNF ya que el antecedente de la dependencia
+funcional 4 es superclave y vale la dependencia funcional 4 la cual se
+uso en el proceso de división. 
+
+*** B8 (Nom_buque, DNI_Dueño, #viaje, Puerto_Origen, Puerto_Destino, Puerto_Intermedio, 
+    Nom_País_Puerto_Destino, Nombre_Pais_Puerto_Origen,
+    Nombre_Pais_Puerto_Intermedio, Posicion_Actual,
+    Fecha_Posicion_Actual, DNI_Pasajero,Puerto_Inicio_Pasajero,
+    Puerto_Final_Pasajero)
+
+
+El esquema B8 no esta en BCNF porque al menos uno de los antecedentes
+de las dependencias funcionales 5-10 no es superclave (Por ejemplo: la
+dependencia funcional 5). Entonces divido la tabla B8 utilizando la
+dependencia funcional 5 quedando lo siguiente:
+
+*** B9 (Puerto_Origen, Nom_País_Puerto_Origen)
+
+    El esquema B9 esta en BCNF ya que el antecedente de la dependencia
+funcional 5 es superclave y vale la dependencia funcional 5 la cual se
+uso en el proceso de división. 
+
+*** B10 (Nom_buque, DNI_Dueño, #viaje, Puerto_Origen, Puerto_Destino,
+    Puerto_Intermedio, Nom_País_Puerto_Destino,
+    Nombre_Pais_Puerto_Intermedio, Posicion_Actual,
+    Fecha_Posicion_Actual, DNI_Pasajero,Puerto_Inicio_Pasajero,
+    Puerto_Final_Pasajero) 
+
+
+El esquema B10 no esta en BCNF porque al menos uno de los antecedentes
+de las dependencias funcionales 6-10 no es superclave (Por ejemplo: la
+dependencia funcional 6). Entonces divido la tabla B10 utilizando la
+dependencia funcional 6 quedando lo siguiente:
+
+*** B11 (Puerto_Destino, Nom_País_Puerto_Destino)
+
+    El esquema B11 esta en BCNF ya que el antecedente de la dependencia
+funcional 6 es superclave y vale la dependencia funcional 6 la cual se
+uso en el proceso de división. 
+
+*** B12 (Nom_buque, DNI_Dueño, #viaje, Puerto_Origen, Puerto_Destino,
+    Puerto_Intermedio, Nombre_Pais_Puerto_Intermedio, Posicion_Actual,
+    Fecha_Posicion_Actual, DNI_Pasajero,Puerto_Inicio_Pasajero,
+    Puerto_Final_Pasajero) 
+
+    El esquema B12 no esta en BCNF porque al menos uno de los antecedentes
+de las dependencias funcionales 7-10 no es superclave (Por ejemplo: la
+dependencia funcional 7). Entonces divido la tabla B12 utilizando la
+dependencia funcional 7 quedando lo siguiente:
+
+*** B13 (Puerto_Intermedio, Nombre_Pais_Puerto_Intermedio)
+
+    El esquema B13 esta en BCNF ya que el antecedente de la dependencia
+funcional 7 es superclave y vale la dependencia funcional 7 la cual se
+uso en el proceso de división. 
+
+*** B14 (Nom_buque, DNI_Dueño, #viaje, Puerto_Origen, Puerto_Destino,
+    Puerto_Intermedio, Posicion_Actual, Fecha_Posicion_Actual,
+    DNI_Pasajero,Puerto_Inicio_Pasajero, Puerto_Final_Pasajero) 
+
+    El esquema B14 no esta en BCNF porque al menos uno de los antecedentes
+de las dependencias funcionales 8-10 no es superclave (Por ejemplo: la
+dependencia funcional 8). Entonces divido la tabla B14 utilizando la
+dependencia funcional 8 quedando lo siguiente:
+
+*** B15 (Nom_buque, #viaje, Puerto_Origen, Puerto_Destino)
+
+    El esquema B15 esta en BCNF ya que el antecedente de la dependencia
+funcional 8 es superclave y vale la dependencia funcional 8 la cual se
+uso en el proceso de división. 
+
+*** B16 (Nom_buque, DNI_Dueño, #viaje, Puerto_Intermedio, Posicion_Actual,
+    Fecha_Posicion_Actual, DNI_Pasajero,Puerto_Inicio_Pasajero,
+    Puerto_Final_Pasajero)
+
+
+    El esquema B16 no esta en BCNF porque al menos uno de los antecedentes
+de las dependencias funcionales 9 Y 10 no es superclave (Por ejemplo:
+la dependencia funcional 9). Entonces divido la tabla B16 utilizando
+la dependencia funcional 9 quedando lo siguiente:
+
+*** B17 (Nom_buque, Fecha_Posicion_Actual, Posicion_Actual)
+
+    El esquema B17 esta en BCNF ya que el antecedente de la dependencia
+funcional 9 es superclave y vale la dependencia funcional 9 la cual se
+uso en el proceso de division. 
+
+*** B18  (Nom_buque, DNI_Dueño, #viaje, Puerto_Intermedio,
+    Fecha_Posicion_Actual, DNI_Pasajero, Puerto_Inicio_Pasajero,
+    Puerto_Final_Pasajero) 
+
+    El esquema B18 no esta en BCNF porque el antecedente de la dependencia
+funcional 10 no es superclave. Entonces divido la tabla B18 utilizando
+la dependencia funcional 10 quedando lo siguiente:
+
+*** B19 (#viaje, Nom_buque, DNI_Pasajero,
+    Puerto_Inicio_Pasajero,Puerto_Final_Pasajero)
+
+    El esquema B19 esta en BCNF ya que el antecedente de la dependencia
+funcional 10 es superclave y vale la dependencia funcional 10 la cual
+se uso en el proceso de división.
+
+*** B20  (Nom_buque, DNI_Dueño, #viaje, Puerto_Intermedio, 
+    Fecha_Posicion_Actual, DNI_Pasajero)
+
+    El esquema B20 esta en BCNF porque todos los atributos forman
+    parte de la clave candidata.
+
+
+Dependencias Multivaluadas validas sobre B20
+
+1) Nom_buque ->> DNI_Dueño
+2) Nom_buque ->> Fecha_Posición_Actual
+3) Nom_buque, #viaje ->> DNI_Pasajero
+4) Nom_buque, #viaje ->> Puerto_Intermedio
+
+El esquema B20 no esta en 4NF porque existen dependencias
+multivaluadas que no son triviales en B20. Entonces divido la tabla
+B20 utilizando la dependencia multivaluada 1 quedando lo siguiente:
+
+*** B21  (Nom_buque, DNI_Dueño)
+    
+    El esquema B21 esta en 4NF ya que solo vale la dependencia
+multivaluada 1 que es trivial.
+
+*** B22  (Nom_buque, #viaje, Puerto_Intermedio, Fecha_Posicion_Actual, DNI_Pasajero)
+
+    El esquema B22 no esta en 4NF porque existen dependencias
+    multivaluadas que no son triviales en B22. 
+    Entonces divido la tabla B22 utilizando la dependencia
+    multivaluada 2 quedando lo siguiente:
+
+*** B23  (Nom_buque, Fecha_Posicion_Actual)
+*** B24  (Nom_buque, #viaje, Puerto_Intermedio, DNI_Pasajero)
+
+El esquema B24 no esta en 4NF porque existen dependencias
+multivaluadas que no son triviales en B24. Entonces divido la tabla
+B24 utilizando la dependencia multivaluada 3 quedando lo siguiente:
+
+*** B25  (Nom_buque, #viaje, DNI_Pasajero)
+
+    El esquema B25 esta en 4NF ya que solo vale la dependencia
+    multivaluada 3 que es trivial. 
+
+    Las tablas B23 como B25 son proyecciones de las tablas B17 y B19
+    respectivamente.
+
+*** B26  (Nom_buque, #viaje, Puerto_Intermedio)
+
+    El esquema B26 esta en 4NF ya que solo vale la dependencia
+    multivaluada 4 que es trivial.
+
+
+
+** Tablas Resultantes:
+   B1, B3, B5, B7, B9, B11, B13, B15, B17, B19, B21 y B26. 
+
+** Clave Primaria:
+   
+   DNI_dueño, DNI_Pasajero, Nom_buque, #viaje, Fecha_Posicion_Actual,
+   Puerto_intermedio
+
