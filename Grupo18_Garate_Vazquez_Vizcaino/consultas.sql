@@ -164,7 +164,7 @@ having cantidad_insumos > 3;
 8.
 **Creacion de tabla**
 ```
-create table `internacionesporpaciente` (`idIP` int, `dniPaciente` int, `cantidadInternaciones` int, `fechaUltimaInternacion` datetime, `usuario` char(16), PRIMARY KEY(idIP));
+create table `internacionesporpaciente` (`idIP` int, `dniPaciente` int, `cantidaInternaciones` int, `fechaUltimaActualizacion` datetime, `usuario` char(16), PRIMARY KEY(idIP));
 ```
 
 **Verificamos que lo que hicimos este bien**
@@ -192,14 +192,18 @@ DECLARE EXIT HANDLER FOR SQLWARNING ROLLBACK;
 SET usuario = CURRENT_USER();
 SET fecha = NOW();
 
+)
+
 START TRANSACTION;
 
 OPEN internaciones;
 
 read_loop: LOOP
   FETCH internaciones INTO dni, nroInternaciones;
-  INSERT INTO internacionesporpaciente(dniPaciente, cantidadInternaciones, fechaUltimaActualizacion, usuario)
-         VALUES(dni, nroInternaciones, fecha, usuario);
+    select 1;
+    SET terminado = 1;
+#INSERT INTO internacionesporpaciente(dniPaciente, cantidaInternaciones, fechaUltimaActualizacion, usuario)
+#         VALUES(dni, nroInternaciones, fecha, usuario);
   IF terminado = 1 THEN
     LEAVE read_loop;
   END IF;
@@ -223,7 +227,7 @@ CREATE TRIGGER after_internacion_insert AFTER INSERT ON internacion
 FOR EACH ROW BEGIN
   update internacionesporpaciente
   set cantidaInternaciones = cantidaInternaciones + 1,
-      fechaultimaactualizacion = NOW(),
+      fechaUltimaActualizacion = NOW(),
       usuario = CURRENT_USER()
   where dniPaciente = NEW.dniPaciente;
 END
@@ -231,7 +235,7 @@ $$
 DELIMITER ;
 
 ```
-11
+11. 
 ```
 DELIMITER $$
 
@@ -271,15 +275,19 @@ select * from internacionesporpaciente where dniPaciente = 1002342;
 
 
 # Esta bien que devulva esto?
-
-+-------------------------------------------------------+
++-------------+------------------------+----------------+
 | dniPaciente | fechaInicioInternacion | doctorAtencion |
 +-------------+------------------------+----------------+
 |     1002342 | 2007-02-23 12:20:31    | Dr. Campos     |
+|     1002342 | 2009-02-23 12:20:31    | Dr. Maidana    |
 |     1002342 | 2009-11-03 10:07:42    | Dr. Maidana    |
 +-------------+------------------------+----------------+
 
 13.
+Para respetar el formato de nombre de tablas que usa la cursada, renombramos fechaultmaactualizacion a fechaUltimaActualizacion.
+
+
+
 
 14.
 
