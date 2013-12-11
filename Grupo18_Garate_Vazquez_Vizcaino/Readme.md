@@ -18,17 +18,25 @@ order by asc
 ```
 select dniPaciente, nombreApellidoPaciente 
 from paciente p 
-where not exists (select * 
-      	  	  from internacion i 
-		  where obraSecundaria = obraSocialInternacion and p.dniPaciente=i.dniPaciente);
+where not exists (
+  select * 
+  from internacion i 
+  where obraSecundaria = obraSocialInternacion and p.dniPaciente=i.dniPaciente
+);
 ```
 **consulta desnormalizada**
 ```
 select distinct(dniPaciente), nombreApellidoPaciente 
 from internacion p 
-where  not exists (select * 
-       	   	   from internacion i 
-		   where p.dniPaciente = i.dniPaciente and i.obraSocialInternacion = p.obraSecundaria) and exists (select * from internacion i where p.dniPaciente = i.dniPaciente and i.obraSocialInternacion = p.obraPrimaria);
+where not exists (
+  select * 
+  from internacion i 
+  where p.dniPaciente = i.dniPaciente and i.obraSocialInternacion = p.obraSecundaria
+) and exists (
+  select * from 
+  internacion i 
+  where p.dniPaciente = i.dniPaciente and i.obraSocialInternacion = p.obraPrimaria
+);
 ```
 
 4.
@@ -65,7 +73,6 @@ set ciudadhospital ='General Pacheco'
 where ciudadhospital='General  Pacheco';
 ```
 
-
 Con esas consideraciones el ejercicio nos quedo resuelto
 
 **Consulta normalizada**
@@ -77,7 +84,7 @@ create view dniPacientecodHospital as
 
 **consulta desnormalizada**
 
-El problema que se nos presento es que los dni y los codigos de hospital, siento campos disjuntos, estan repetidos en las tuplas. en primera instancia tratamos de planificar la solucion con subconsultas en el form, pero eso no esta permitido para realizar en las vistas.
+El problema que se nos presento es que los dni y los codigos de hospital, siendo campos disjuntos, estan repetidos en las tuplas. en primera instancia tratamos de planificar la solucion con subconsultas en el from, pero eso no esta permitido para realizar en las vistas.
 
 ```
 create view pacienteCiudad as select distinct(dniPaciente),ciudadPaciente 
@@ -222,7 +229,7 @@ DELIMITER $$
 CREATE TRIGGER after_internacion_insert AFTER INSERT ON internacion
 FOR EACH ROW BEGIN
   update internacionesporpaciente
-  set cantidaInternaciones = cantidaInternaciones + 1,
+  set cantidadInternaciones = cantidadInternaciones + 1,
       fechaultimaactualizacion = NOW(),
       usuario = CURRENT_USER()
   where dniPaciente = NEW.dniPaciente;
@@ -236,25 +243,25 @@ DELIMITER ;
 DELIMITER $$
 
 CREATE PROCEDURE `agregar_internacion`(
-	IN dniPaciente int(11),
-	IN codHospital int(11),
-	IN fechaInternacion datetime,
-	IN cantDiasInternacion int(11),
-	IN telefonoInternacion varchar(45),
-	IN doctorAtencion varchar(50),
-	IN insumoAtencion varchar(30)
+  IN dniPaciente int(11),
+  IN codHospital int(11),
+  IN fechaInternacion datetime,
+  IN cantDiasInternacion int(11),
+  IN telefonoInternacion varchar(45),
+  IN doctorAtencion varchar(50),
+  IN insumoAtencion varchar(30)
 )
 BEGIN
-	START TRANSACTION;
-	
-	insert into internacion(codHospital, dniPaciente, fechaInicioInternacion, cantDiasInternacion, telefonoInternacionPaciente)
-	values(codHospital, dniPaciente, fechaInternacion, cantDiasInternacion, telefonoInternacion);
+  START TRANSACTION;
+  
+  insert into internacion(codHospital, dniPaciente, fechaInicioInternacion, cantDiasInternacion, telefonoInternacionPaciente)
+  values(codHospital, dniPaciente, fechaInternacion, cantDiasInternacion, telefonoInternacion);
 
-	insert into atencioninternacion values(dniPaciente, fechaInternacion, doctorAtencion);
+  insert into atencioninternacion values(dniPaciente, fechaInternacion, doctorAtencion);
 
-	insert into insumointernacion values(dniPaciente, fechaInternacion, insumoAtencion);
+  insert into insumointernacion values(dniPaciente, fechaInternacion, insumoAtencion);
 
-	COMMIT;
+  COMMIT;
 END
 $$
 DELIMITER ;
@@ -262,27 +269,4 @@ DELIMITER ;
 12.
 ```
 call agregar_internacion(1002342, 100, '2009-02-23 12:20:31', 3, '4243-4255', 'Dr. Maidana', 'algodón');
-
-select * from internacion where dniPaciente = 1002342;
-select * from insumointernacion where dniPaciente = 1002342;
-select * from atencioninternacion where dniPaciente = 1002342;
-select * from internacionesporpaciente where dniPaciente = 1002342;
 ```
-
-
-# Esta bien que devulva esto?
-
-+-------------------------------------------------------+
-| dniPaciente | fechaInicioInternacion | doctorAtencion |
-+-------------+------------------------+----------------+
-|     1002342 | 2007-02-23 12:20:31    | Dr. Campos     |
-|     1002342 | 2009-11-03 10:07:42    | Dr. Maidana    |
-+-------------+------------------------+----------------+
-
-13.
-
-14.
-
-15.
-
-16.
