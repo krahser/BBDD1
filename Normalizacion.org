@@ -1,17 +1,17 @@
 * Tasks
 
-** DONE Conceptos claves
+** DONE [[Conceptos claves]]
    CLOSED: [2013-12-10 Tue 16:44]
 
-** DONE Segunda forma normal
+** DONE [[Segunda forma normal]]
    CLOSED: [2013-12-10 Tue 16:45]
 
-** DONE Tercera forma normal
+** DONE [[Tercera forma normal]]
    CLOSED: [2013-12-10 Tue 16:53]
 
-** DONE Boyce-cod (BCNF)
+** DONE [[Boyce-cod]] (BCNF)
    CLOSED: [2013-12-10 Tue 17:12]
-
+   
 ** DONE Cuarta forma normal
    CLOSED: [2013-12-10 Tue 21:52]
 ** TODO Quinta forma normal
@@ -20,6 +20,8 @@
   
 ** TODO Ejercicio Buque
 
+
+#+NAME: Conceptos claves
 * Conceptos claves
 
   
@@ -115,10 +117,12 @@ R1 intersección R2 es clave en el esquema R2
 
 , Se prohíben los atributos multivaluados (aquellos que tienen múltiples valores), los atributos compuestos (aquellos compuestos a su vez de otros atributos) y sus combinaciones.
 
+#+NAME: Segunda forma normal
 * Segunda forma normal
 
 , Si esta en 1FN y todo atributo no primo depende funcionalmente de
 manera total de la clave primaria.
+#+NAME: Tercera forma normal
 * Tercera forma normal
 
 , Si esta en 2FN y ningún atributo no primo de R depende transitivamente de la clave primaria.
@@ -126,6 +130,7 @@ Siempre que una dependencia funcional X->A se cumple en R o
  1) A es un atributo primo de R
  2) X es superclave de R
     
+#+NAME: Boyce-cod
 * Boyce-code
 
 , siempre que una dependencia funcional X->A es válida en R, entonces
