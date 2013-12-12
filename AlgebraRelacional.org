@@ -43,23 +43,35 @@ MUEBLEAMBIENTE (id_mueble,id_ambiente)
 *** a) Obtener los nombres de los fabricante que fabrican muebles en todos
 los tipos de Madera
 
-```
+
 '''Guardo todos los tipos de madera'''
+
 MADERAS <- π {id_tipomadera}(TIPOMADERA)
+
 '''Solamente los muebles que estan en todas las maderas con su
 respectivo fabricante'''
+
 FABRICAMUEBLES <- (π{id_tipomadera, id_fabricante}MUEBLE) % MADERAS
+
 RESULTADO <- π{nombreFabricante}(FABRICAMUEBLES|X|FABRICANTE)
-```
+
 
 *** b) Obtener los nombres de los fabricantes que sólo fabrican muebles en
 Pino
-```
-FABRICANTESGENERALES <- (σ{nombreMadera<>'Pino'}TIPOMADERA) |X| π {id_fabricante,id_tipomadera} MUEBLE
-FABRICANTESPINOGENERALES <- (σ{nombreMadera='Pino'}TIPOMADERA) |X|π {id_fabricante,id_tipomadera} MUEBLE
-FABRICANTESPINO <-(π{id_fabricante}FABRICANTESPINO-π{id_fabricante}FABRICANTESGENERALES)
+
+
+FABRICANTESGENERALES <- (σ{nombreMadera<>'Pino'}TIPOMADERA) |X| π
+{id_fabricante,id_tipomadera} MUEBLE
+
+FABRICANTESPINOGENERALES <- (σ{nombreMadera='Pino'}TIPOMADERA) |X|π
+{id_fabricante,id_tipomadera} MUEBLE
+
+FABRICANTESPINO
+<-(π{id_fabricante}FABRICANTESPINO-π{id_fabricante}FABRICANTESGENERALES)
+
 RESULTADO <- π{nombrefabricante}(FABRICANTESPINO|X|FABRICANTE)
-```
+
+
 
 c) Obtener los nombres de los fabricantes que fabrican muebles para
 todos los ambientes
