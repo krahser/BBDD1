@@ -1,0 +1,70 @@
+* Operaciones
+
+- Selección σ 
+- Proyección π
+- Producto Cartesiano X
+- Producto Natural |X|
+- Resta -
+- Intersección
+- Unión
+- División %
+  Operacion binaria entre dos tablas R y S que retorna las tuplas de
+  la primera tabla que estan relacionadas con todas las tuplas de la
+  segunda tabla
+
+  R % S donde S es un subconjunto de los atributos de la tabla R con
+  igual dominio
+
+* Notacion
+TABLAS
+atributo o atributoLargo
+
+Para consultas con más de dos operaciones usar subconsultas.
+SUBCONSULTA <- TABLA |X|x=a OTRATABLA
+
+
+* Ejercicio 1.3
+** Tablas
+
+TIPOMUEBLE (id_tipomueble,descripción)
+FABRICANTE (id_fabricante,nombrefabricante,cuit)
+TIPOMADERA (id_tipomadera,nombremadera)
+AMBIENTE (id_ambiente,descripcionambiente)
+MUEBLE (id_mueble, id_tipomueble, id_fabricante, id_tipomadera,
+precio, dimensiones, descripcion)
+MUEBLEAMBIENTE (id_mueble,id_ambiente)
+
+** Preguntas
+*** Simbolos
+σ π 
+*** Nota
+ Voy a poner los subindices entre {}
+ 
+*** a) Obtener los nombres de los fabricante que fabrican muebles en todos
+los tipos de Madera
+
+'''Guardo todos los tipos de madera'''
+MADERAS <- π {id_tipomadera}(TIPOMADERA)
+'''Solamente los muebles que estan en todas las maderas con su
+respectivo fabricante'''
+FABRICAMUEBLES <- (π{id_tipomadera, id_fabricante}MUEBLE) % MADERAS
+RESULTADO <- π{nombreFabricante}(FABRICAMUEBLES|X|FABRICANTE)
+
+*** b) Obtener los nombres de los fabricantes que sólo fabrican muebles en
+Pino
+
+FABRICANTESGENERALES <- (σ{nombreMadera<>'Pino'}TIPOMADERA) |X| π {id_fabricante,id_tipomadera} MUEBLE
+FABRICANTESPINOGENERALES <- (σ{nombreMadera='Pino'}TIPOMADERA) |X|π {id_fabricante,id_tipomadera} MUEBLE
+FABRICANTESPINO <-(π{id_fabricante}FABRICANTESPINO-π{id_fabricante}FABRICANTESGENERALES)
+RESULTADO <- π{nombrefabricante}(FABRICANTESPINO|X|FABRICANTE)
+
+c) Obtener los nombres de los fabricantes que fabrican muebles para
+todos los ambientes
+d) Obtener los nombres de los fabricantes que sólo fabrican muebles
+para oficina
+e) Obtener los nombres de los fabricantes que sólo fabrican muebles
+para baño y cocina.
+f) Obtener los nombres de los fabricantes que producen muebles de
+cedro y roble.
+g) Obtener los nombres de los fabricantes que producen muebles de
+melanina o MDF
