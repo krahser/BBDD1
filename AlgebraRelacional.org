@@ -40,24 +40,21 @@ MUEBLEAMBIENTE (id_mueble,id_ambiente)
 *** Nota
  Voy a poner los subindices entre {}
  
-*** a) Obtener los nombres de los fabricante que fabrican muebles en todos
-los tipos de Madera
+*** a) Obtener los nombres de los fabricante que fabrican muebles en todos los tipos de Madera
 
 
-'''Guardo todos los tipos de madera'''
+*Guardo todos los tipos de madera*
 
 MADERAS <- π {id_tipomadera}(TIPOMADERA)
 
-'''Solamente los muebles que estan en todas las maderas con su
-respectivo fabricante'''
+*Solamente los muebles que estan en todas las maderas con su
+respectivo fabricante*
 
 FABRICAMUEBLES <- (π{id_tipomadera, id_fabricante}MUEBLE) % MADERAS
 
 RESULTADO <- π{nombreFabricante}(FABRICAMUEBLES|X|FABRICANTE)
 
-
-*** b) Obtener los nombres de los fabricantes que sólo fabrican muebles en
-Pino
+*** b) Obtener los nombres de los fabricantes que sólo fabrican muebles en Pino
 
 
 FABRICANTESGENERALES <- (σ{nombreMadera<>'Pino'}TIPOMADERA) |X| π
@@ -71,15 +68,36 @@ FABRICANTESPINO
 
 RESULTADO <- π{nombrefabricante}(FABRICANTESPINO|X|FABRICANTE)
 
+*** c) Obtener los nombres de los fabricantes que fabrican muebles para todos los ambientes
+
+*Obtengo los tipos de ambiente para cada fabricante*
+
+FABRICANTESAMBIENTES <-
+π{id_fabricante,id_ambiente}(MUEBLE|X|MUEBLEAMBIENTE)
+
+*Solamente los que producen todos los tipo de muebles*
+
+FABRICANTESCOMPLETOS <- FABRICANTESAMBIENTES % (π{id_ambiente}AMBIENTE)
+
+RESULTADO <- π{nombrefabricante}(FABRICANTESCOMPLETOS)
 
 
-c) Obtener los nombres de los fabricantes que fabrican muebles para
-todos los ambientes
-d) Obtener los nombres de los fabricantes que sólo fabrican muebles
-para oficina
-e) Obtener los nombres de los fabricantes que sólo fabrican muebles
-para baño y cocina.
-f) Obtener los nombres de los fabricantes que producen muebles de
-cedro y roble.
-g) Obtener los nombres de los fabricantes que producen muebles de
-melanina o MDF
+*** d) Obtener los nombres de los fabricantes que sólo fabrican muebles para oficina
+
+*Los que construyen de todo*
+FABRICANTESOFICINA <- (σ{descripcion='oficina'}TIPOMUEBLE) |X| π
+{id_fabricante,id_tipomueble} MUEBLE
+
+*Los que construyen oficina*
+FABRICANTESGENERALES <- (σ{descripcion<>'oficina'}TIPOMUEBLE) |X| π
+{id_fabricante,id_tipomueble} MUEBLE
+
+*La resta de los que fabrican oficina, con los que fabrican de todo*
+FABRICANOFICINA<-(π{id_fabricante}FABRICANTESOFICINA-π{id_fabricante}FABRICANTESGENERALES)
+
+*Los nombres*
+RESULTADO <- π{nombrefabricante}(FABRICANOFICINA|X|FABRICANTE)
+
+*** e) Obtener los nombres de los fabricantes que sólo fabrican muebles para baño y cocina.
+*** f) Obtener los nombres de los fabricantes que producen muebles de cedro y roble.
+*** g) Obtener los nombres de los fabricantes que producen muebles de melanina o MDF
